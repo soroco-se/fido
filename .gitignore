@@ -1,0 +1,7 @@
+# The artifact of this project
+fido
+
+# compile steps and hidden files
+*.d
+*.o
+.*

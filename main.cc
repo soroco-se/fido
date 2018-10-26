@@ -1,15 +1,16 @@
 #include <iostream>
 #include <ftw.h>
-#include <magic.h>
 
-magic_t magic_cookie;
+#include <identify.h>
 
+Identify ident;
 
 int process(const char* path, const struct stat * sb, int typeflag, struct FTW* ftwbuf)
 {
 	// Check filetype, using magic!
-	auto magic_info = magic_file(magic_cookie, path);
-	std::cout << path << " " << magic_info << std::endl;
+//	auto magic_info = magic_file(magic_cookie, path);
+//	std::cout << path << " " << magic_info << std::endl;
+  std::cout << ident.process(path);
 	
 	return 0;
 }
@@ -20,23 +21,15 @@ int main(int argc, char** argv)
 	if (argc == 2)
 	  dir = argv[1];
 
-	std::cout << "FIDO will traverse directories, starting at " << dir << std::endl;
+  // First init identify, without it nothing will work
+  if (!ident.init()) {
+    std::cerr << "FIDO failed: " << ident.get_error() << std::endl;  
+  }
 
-	// Setup magic
-	magic_cookie = magic_open(MAGIC_NONE);
-	if (magic_cookie == NULL) {
-		std::cerr << "Unable to load magic" << std::endl;
-		return 1;
-	}
-	if (magic_load(magic_cookie, NULL) != 0) {
-		std::cerr << "Could not load magic database: " << magic_error(magic_cookie) << std::endl;
-		magic_close(magic_cookie);
-		return 1;
-	}
+	std::cout << "FIDO will traverse directories, starting at " << dir << std::endl;
 
 	int res = nftw(dir.c_str(),process,1024,FTW_PHYS);
 
-	magic_close(magic_cookie);
 
 	return res;
 }
