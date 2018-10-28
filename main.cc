@@ -7,10 +7,7 @@ Identify ident;
 
 int process(const char* path, const struct stat * sb, int typeflag, struct FTW* ftwbuf)
 {
-	// Check filetype, using magic!
-//	auto magic_info = magic_file(magic_cookie, path);
-//	std::cout << path << " " << magic_info << std::endl;
-  std::cout << ident.process(path);
+  std::cout << ident.process(path) << std::endl;
 	
 	return 0;
 }

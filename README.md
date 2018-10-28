@@ -3,6 +3,11 @@ Hopefully in an automatic fashion.
 
 Find Identify Date Organize
 
+Dependencies:
+ - libmagic
+ - libextractor
+    - gstreamer, with plugins
+    - libgstreamer
 
 Diary:
 Dåså, traversering och id funkar (isch)
