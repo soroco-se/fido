@@ -15,6 +15,9 @@ struct file_meta
   std::string magic_info;     // Information from libmagic
   std::string creation_date;  // From exif or similar metadata
   std::string size;           // From exif or similar metadata
+  int width;
+  int height;
+  double duration;
   std::string extraction_plugin;
   std::string other;
 };
