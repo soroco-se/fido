@@ -18,23 +18,28 @@ std::string get_destination(file_meta m)
 	return path;
 }
 
-FileType get_type(file_meta m)
-{
-}
-
 int process(const char* path, const struct stat * sb, int typeflag, struct FTW* ftwbuf)
 {
   auto result = ident.process(path);
 	std::cout << "DBG: " << result << std::endl;
-	if (!store.set(result.path, get_type(result), result.creation_date, result.width, result.height, result.duration, get_destination(result)))
-		return 1;
-	
+  if (result.creation_date.empty()) {
+    // Fall back to file date
+    char buff[20];
+    // Use ugly date since it is changed later
+    strftime(buff, 20, "%Y:%m:%d %H:%M:%S", localtime(&sb->st_mtime));
+    result.creation_date = buff;
+  }
+	if (!store.set( result.path, result.type, result.creation_date, 
+                  result.width, result.height, result.duration, get_destination(result))) {
+		std::cerr << "Datastore error: " << store.get_error() << std::endl;
+    return 1;
+	}
 	return 0;
 }
 
 int print_version(std::string progname)
 {
-	std::cerr << progrname << ", version " << VERSION << ", built " << __DATE__ << " " << __TIME__ << std::endl;
+	std::cerr << progname << ", version " << VERSION << ", built " << __DATE__ << " " << __TIME__ << std::endl;
 	return 0;
 }
 
@@ -48,12 +53,13 @@ int print_usage(std::string progname)
 	std::cerr << "  -d, --dump=DB					dump contents of sqlite database DB\n";
 	std::cerr << '\n';
 	std::cerr << "  -h, --help			display this help and exit\n";
-	std::cerr << "  -v, --version		output version information and exit\n;
+	std::cerr << "  -v, --version		output version information and exit\n";
 	std::cerr << '\n';
 	std::cerr << progname << " will traverse the directory tree starting at DIR and\n";
 	std::cerr << "attempt to identify each file it encounters. The result is stored in\n";
 	std::cerr << "an sqlite database.\n";
 	std::cerr << "It can also dump the findings from a previous run, stored in DB\n";
+  return 0;
 }
 
 int main(int argc, char** argv)
@@ -66,7 +72,7 @@ int main(int argc, char** argv)
 		{"dump",			required_argument, 0, 'd'}
 	};
 	std::string dir = ".";
-	std::stirng db_path;
+	std::string db_path;
 	int opt=0;
 	int option_index=0;
 	while ((opt = getopt_long(argc, argv, "d:ht:vV", long_opts, &option_index)) != -1)
@@ -103,6 +109,11 @@ int main(int argc, char** argv)
 
 	int res = nftw(dir.c_str(),process,1024,FTW_PHYS);
 
+  std::vector<std::string> data;
+  store.dump(data);
+  for (auto row : data) {
+    std::cout << row << std::endl;  
+  }
 
 	return res;
 }

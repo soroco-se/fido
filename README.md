@@ -6,6 +6,7 @@ Find Identify Date Organize
 Dependencies:
  - libmagic
  - libextractor
+    https://www.gnu.org/software/libextractor/manual/libextractor.html
     - gstreamer, with plugins
     - libgstreamer
 

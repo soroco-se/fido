@@ -1,17 +1,15 @@
+# Makefile for FIDO
 
 name=fido
-#third_party=../third_party
-#zenlib_inc=$(third_party)/ZenLib/Source
-#zenlib_lib=$(third_party)/ZenLib/Project/GNU/Library/.libs
-#mediainfo_inc=$(third_party)/MediaInfoLib/Source
-#mediainfo_lib=$(third_party)/MediaInfoLib/Project/GNU/Library/.libs
+version=0.1.0
+
 src=$(wildcard *.cc) # main.cc
 obj=$(patsubst %.cc,%.o, $(src))
 inc=-I. #-I$(mediainfo_inc) -I$(zenlib_inc)
 
-CXXFLAGS+=-Wall $(inc) --std=c++11
+CXXFLAGS+=-Wall $(inc) --std=c++11 -DVERSION=\"$(version)\" -g
 LDFLAGS+=-L$(mediainfo_lib) -L$(zenlib_lib)
-LIBS=-lmagic -lextractor #-lzen -lmediainfo
+LIBS=-lmagic -lextractor -lexiv2 -lsqlite3 #-lzen -lmediainfo
 
 all: $(name)
 

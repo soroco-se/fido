@@ -1,5 +1,6 @@
 #include <datastore.h>
 #include <sstream>
+#include <cstring>  // memset
 
 
 Datastore::Datastore() :
@@ -31,12 +32,13 @@ bool Datastore::open()
   
   std::stringstream sql;
   sql << "CREATE TABLE FIDO(ID INTEGER PRIMARY KEY     NOT NULL,";
-  sql << "CURRENT_PATH TEXT    NOT NULL,";
-  sql << "FILE_TYPE    TEXT     NOT NULL,";
-  sql << "WIDHT        INTEGER,";
-  sql << "HEIGHT       INTEGER,";
-  sql << "DURATION         REAL,";
-  sql << "DESTINATION_PATH TEXT);";
+  sql << "CURRENT_PATH      TEXT    NOT NULL,";
+  sql << "FILE_TYPE         TEXT     NOT NULL,";
+  sql << "CREATION_DATE     TEXT     NOT NULL,";
+  sql << "WIDTH             INTEGER,";
+  sql << "HEIGHT            INTEGER,";
+  sql << "DURATION          REAL,";
+  sql << "DESTINATION_PATH  TEXT);";
    char* errMsg=0;
    if ( sqlite3_exec(db, sql.str().c_str(), NULL, 0, &errMsg) != SQLITE_OK ) {
       error = errMsg;
@@ -49,23 +51,37 @@ bool Datastore::open()
 // Open an existing database, RO?
 bool Datastore::open(std::string db_path)
 {
-  if (sqlite3_open(path, &db) != 0) {
+  if (sqlite3_open(db_path.c_str(), &db) != 0) {
     std::stringstream err;
-    err << "Failed to open database: " << path << " Error is: " << sqlite3_errmsg(db);
+    err << "Failed to open database: " << db_path << " Error is: " << sqlite3_errmsg(db);
     error = err.str();
     return false;
   }
   return true;
 }
 
-bool Datastore::set(std::string path, FileType ft, std::string date, int w, int h, double dur, std::string dest)
+std::string Datastore::format_date(std::string d)
+{
+  if (d.empty())
+    return d;
+
+  struct tm tm;
+  char buf[255];
+
+  memset(&tm, 0, sizeof(struct tm));
+  strptime(d.c_str(), "%Y:%m:%d %H:%M:%S", &tm);
+  strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm);
+  return std::string(buf);
+}
+
+bool Datastore::set(std::string path, std::string ft, std::string date, int w, int h, double dur, std::string dest)
 {
    char *errMsg = 0;
    std::stringstream sql;
-   sql << "INSERT INTO FIDO (CURRENT_PATH, FILE_TYPE, WIDTH, HEIGHT, DURATION, DESTINATION_PATH)";
-   sql << "VALUES ('" << path << "'," << ft << "," << w << "," << h << "," << dur << ",'" << dest << "');"; 
+   sql << "INSERT INTO FIDO (CURRENT_PATH, FILE_TYPE, CREATION_DATE, WIDTH, HEIGHT, DURATION, DESTINATION_PATH)";
+   sql << "VALUES ('" << path << "','" << ft << "','" << format_date(date) << "'," << w << "," << h << "," << dur << ",'" << dest << "');"; 
 
-   if ( sqlite3_exec(db, sql.str().c_Str(), NULL, 0, &errMsg) != SQLITE_OK ) {
+   if ( sqlite3_exec(db, sql.str().c_str(), NULL, 0, &errMsg) != SQLITE_OK ) {
       error = errMsg;
       sqlite3_free(errMsg);
       return false;
@@ -74,25 +90,28 @@ bool Datastore::set(std::string path, FileType ft, std::string date, int w, int 
 }
 
 // Return all entries in db
-std::vector<std::string>  Datastore::dump()
+bool Datastore::dump(std::vector<std::string>& ret_data)
 {
   char *errMsg = 0;
   std::stringstream sql;
   sql << "SELECT * FROM FIDO";
-  std::vector<std:string> data;
-   if ( sqlite3_exec(db, sql.str().c_Str(), [](void *data, int argc, char **argv, char **azColName){
+  std::vector<std::string> data;
+   if ( sqlite3_exec(db, sql.str().c_str(), 
+     [](void *data, int argc, char **argv, char **azColName) -> int {
         auto vec = static_cast<std::vector<std::string>*>(data);
         std::string row;
-        for(i = 0; i<argc; i++){
+        for(int i = 0; i<argc; i++){
           if (!row.empty())
             row += ", ";
             row += (argv[i] ? argv[i] : "NULL");
         }  
-        vec.push_back(row);
-      }, (void*)&data, &errMsg) != SQLITE_OK ) {
+        vec->push_back(row);
+        return 0;
+      } , (void*)&data, &errMsg) != SQLITE_OK ) {
       error = errMsg;
       sqlite3_free(errMsg);
       return false;
    }
-   return data;
+   ret_data=data;
+   return true;
 }
