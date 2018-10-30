@@ -9,6 +9,7 @@ Dependencies:
     https://www.gnu.org/software/libextractor/manual/libextractor.html
     - gstreamer, with plugins
     - libgstreamer
+ - libexiv2
 
 Diary:
 Dåså, traversering och id funkar (isch)
