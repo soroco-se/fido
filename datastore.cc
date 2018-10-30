@@ -1,7 +1,5 @@
 #include <datastore.h>
 #include <sstream>
-#include <cstring>  // memset
-
 
 Datastore::Datastore() :
   path_to_db("."),
@@ -60,26 +58,12 @@ bool Datastore::open(std::string db_path)
   return true;
 }
 
-std::string Datastore::format_date(std::string d)
-{
-  if (d.empty())
-    return d;
-
-  struct tm tm;
-  char buf[255];
-
-  memset(&tm, 0, sizeof(struct tm));
-  strptime(d.c_str(), "%Y:%m:%d %H:%M:%S", &tm);
-  strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm);
-  return std::string(buf);
-}
-
 bool Datastore::set(std::string path, std::string ft, std::string date, int w, int h, double dur, std::string dest)
 {
    char *errMsg = 0;
    std::stringstream sql;
    sql << "INSERT INTO FIDO (CURRENT_PATH, FILE_TYPE, CREATION_DATE, WIDTH, HEIGHT, DURATION, DESTINATION_PATH)";
-   sql << "VALUES ('" << path << "','" << ft << "','" << format_date(date) << "'," << w << "," << h << "," << dur << ",'" << dest << "');"; 
+   sql << "VALUES ('" << path << "','" << ft << "','" << date << "'," << w << "," << h << "," << dur << ",'" << dest << "');"; 
 
    if ( sqlite3_exec(db, sql.str().c_str(), NULL, 0, &errMsg) != SQLITE_OK ) {
       error = errMsg;
