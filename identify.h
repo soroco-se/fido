@@ -60,6 +60,9 @@ struct file_meta
 	void set_duration(std::string d) {
 		duration = fido::str_to_dbl(d);
 	}
+	void set_date(std::string s) {
+		creation_date = fido::format_date(s);	// Make sure that the date conforms to YYYY-mm-dd HH:MM:SS
+	}
 };
 
 inline std::ostream& operator<<(std::ostream& os, const struct file_meta& m)
