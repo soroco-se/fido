@@ -28,7 +28,7 @@ class Datastore
     std::string get_error() { return error; }  
   
   private:
-    std::string format_date(std::string d);
+    //std::string format_date(std::string d);
     std::string get_file_path();  // Return full file path based on path and name
     std::string path_to_db;
     std::string name_of_db;
