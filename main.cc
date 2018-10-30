@@ -25,8 +25,7 @@ int process(const char* path, const struct stat * sb, int typeflag, struct FTW* 
   if (result.creation_date.empty()) {
     // Fall back to file date
     char buff[20];
-    // Use ugly date since it is changed later
-    strftime(buff, 20, "%Y:%m:%d %H:%M:%S", localtime(&sb->st_mtime));
+    strftime(buff, 20, "%Y-%m-%d %H:%M:%S", localtime(&sb->st_mtime));
     result.creation_date = buff;
   }
 	if (!store.set( result.path, result.type, result.creation_date, 
