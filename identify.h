@@ -5,7 +5,7 @@
 #include <extractor.h>
 #include <iostream>
 #include <string>
-#include <stdexcept>
+#include <util.h>
 
 enum FileType {
   OTHER = 0,
@@ -51,22 +51,14 @@ struct file_meta
 		type = to_string(file_type);
 		return all_set;				
 	}
-	int convert(std::string n) {
-		std::cout << "convert " << n << std::endl;
-		int i=0;
-		try {
-			i = std::stoi(n);
-		}
-		catch (const std::invalid_argument& ia) {
-			std::cerr << "Invalid argument when converting from " << n << " to int: " << ia.what() << '\n';
-		}
-		return i;
-	}
 	void set_width(std::string w) {
-		width = convert(w);				
+		width = fido::str_to_int(w);				
 	}
 	void set_height(std::string h) {
-		height = convert(h);				
+		height = fido::str_to_int(h);				
+	}
+	void set_duration(std::string d) {
+		duration = fido::str_to_dbl(d);
 	}
 };
 
