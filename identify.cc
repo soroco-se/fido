@@ -74,7 +74,7 @@ file_meta Identify::process(std::string path)
       }
       current.width  = exifData.findKey(Exiv2::ExifKey("Exif.Image.ImageWidth"))->toLong();
       current.height = exifData.findKey(Exiv2::ExifKey("Exif.Image.ImageWidth"))->toLong();
-      current.creation_date = exifData.findKey(Exiv2::ExifKey("Exif.Photo.DateTimeOriginal"))->toString();
+      current.set_date(exifData.findKey(Exiv2::ExifKey("Exif.Photo.DateTimeOriginal"))->toString());
       current.all_set = true;
       /*
       for (Exiv2::ExifData::const_iterator it = exifData.begin(); it != exifData.end(); ++it) {
@@ -123,7 +123,8 @@ file_meta Identify::process(std::string path)
 int Identify::meta(std::string plugin_name, enum EXTRACTOR_MetaType type, std::string data) 
 {
   switch (type) {
-    case EXTRACTOR_METATYPE_CREATION_DATE: current.creation_date = data; break;
+    case EXTRACTOR_METATYPE_CREATION_DATE:	current.set_date(data); break;	
+		case EXTRACTOR_METATYPE_DURATION:				current.set_duration(data);		break;
     default:
       current.other.append(" ").append(EXTRACTOR_metatype_to_string(type)); break;
   }
