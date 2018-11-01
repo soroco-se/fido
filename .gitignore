@@ -5,3 +5,6 @@ fido
 *.d
 *.o
 .*
+
+# output files
+*.db

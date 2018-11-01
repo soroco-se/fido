@@ -7,7 +7,7 @@
 
 namespace fido {
 // Conversions
-int str_to_int(std::string n) {
+inline int str_to_int(std::string n) {
   std::cout << "convert " << n << std::endl;
   int i=0;
   try {
@@ -19,7 +19,7 @@ int str_to_int(std::string n) {
   return i;
 }
 
-double str_to_dbl(std::string n) {
+inline double str_to_dbl(std::string n) {
   std::cout << "convert " << n << std::endl;
   double d=0.0;
   try {
@@ -32,7 +32,7 @@ double str_to_dbl(std::string n) {
 }
 
   
-std::string Datastore::format_date(std::string d)
+inline std::string format_date(std::string d)
 {
   if (d.empty())
     return d;
@@ -56,9 +56,9 @@ std::string Datastore::format_date(std::string d)
   // Attempt to validate the datetime
   struct tm dtm = {sec, min, hour, day, month-1, year-1900, 0, 0, 0};
   if (mktime(&dtm) != time_t(-1) &&
-     dtm.year == year-1900 &&
-     dtm.mon  == month-1 &&
-     dtm.mday == day) {
+     dtm.tm_year == year-1900 &&
+     dtm.tm_mon  == month-1 &&
+     dtm.tm_mday == day) {
     std::stringstream dout;
     dout << year << "-" << month << "-" << day << " " << hour << ":" << min << ":" << sec;
     new_date = dout.str();

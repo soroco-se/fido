@@ -26,6 +26,7 @@ inline std::string to_string(FileType ft) {
 		case FileType::PDF:  	 return "pdf";		break;				
 		case FileType::DOC:  	 return "doc"; 	break;				
 		case FileType::TEXT: 	 return "text";	break;				
+    default: return "unknown"; break;
 	}				
 }
 
